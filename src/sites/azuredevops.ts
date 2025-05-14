@@ -3,7 +3,7 @@ import type { ReplacementSelectorSet, Site } from './index.js';
 const mainRepositoryImplementation: ReplacementSelectorSet = {
 	row: 'table[aria-label="Files table"] tr td:nth-of-type(2)',
 	filename: 'a',
-	icon: 'span[class*="fabric-icon"]',
+	icon: 'span.fabric-icon',
 	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
 		iconEl.classList.contains('repos-folder-ison'),
 	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
@@ -12,9 +12,9 @@ const mainRepositoryImplementation: ReplacementSelectorSet = {
 };
 
 const repositorySideTreeImplementation: ReplacementSelectorSet = {
-	row: 'table[aria-label="File explorer tree"] tr td:nth-of-type(2)',
+	row: 'table[aria-label="File explorer tree"] tr td:nth-of-type(2) div.repos-file-explorer-tree-cell div:nth-of-type(2)',
 	filename: 'a',
-	icon: 'span[class*="fabric-icon"]',
+	icon: 'span.fabric-icon',
 	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
 		iconEl.classList.contains('repos-folder-ison'),
 	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
