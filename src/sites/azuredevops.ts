@@ -5,18 +5,18 @@ const mainRepositoryImplementation: ReplacementSelectorSet = {
 	filename: 'a',
 	icon: 'span.fabric-icon',
 	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
-		iconEl.classList.contains('repos-folder-ison'),
+		iconEl.classList.contains('repos-folder-icon'),
 	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
 		iconEl.classList.contains('repos-submodule'),
 	isCollapsable: (_rowEl, _fileNameEl, _iconEl) => false,
 };
 
 const repositorySideTreeImplementation: ReplacementSelectorSet = {
-	row: 'table[aria-label="File explorer tree"] tr td:nth-of-type(2) div.repos-file-explorer-tree-cell div:nth-of-type(2)',
+	row: 'table[aria-label="File explorer tree"] tr td:nth-of-type(2) div.repos-file-explorer-tree-cell div.text-ellipsis',
 	filename: 'a',
 	icon: 'span.fabric-icon',
 	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
-		iconEl.classList.contains('repos-folder-ison'),
+		iconEl.classList.contains('repos-folder-icon'),
 	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
 		iconEl.classList.contains('repos-submodule'),
 	isCollapsable: (_rowEl, _fileNameEl, _iconEl) =>
