@@ -1,3 +1,4 @@
+import { azuredevops } from './azuredevops';
 import { bitbucket } from './bitbucket';
 import { forgejo } from './forgejo';
 import { gitea } from './gitea';
@@ -44,6 +45,7 @@ export const sites: Array<Site> = [
 	forgejo,
 	bitbucket,
 	tangled,
+	azuredevops,
 ];
 export const matches: Array<string> = sites
 	.flatMap((site) => site.domains)
