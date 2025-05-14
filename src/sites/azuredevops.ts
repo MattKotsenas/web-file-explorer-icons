@@ -1,23 +1,26 @@
 import type { ReplacementSelectorSet, Site } from './index.js';
 
 const mainRepositoryImplementation: ReplacementSelectorSet = {
-	row: 'table[aria-label="Files table"] tr',
-	filename: 'td:first-of-type',
-	icon: 'svg',
+	row: 'table[aria-label="Files table"] tr td:nth-of-type(2)',
+	filename: 'a',
+	icon: 'span[class*="fabric-icon"]',
 	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
-		iconEl.parentElement.getAttribute('aria-label') === 'Directory,',
+		iconEl.classList.contains('repos-folder-ison'),
 	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
-		iconEl.classList.contains('octicon-file-submodule'),
+		iconEl.classList.contains('repos-submodule'),
 	isCollapsable: (_rowEl, _fileNameEl, _iconEl) => false,
 };
 
-const fileContentsHeaderImplementation: ReplacementSelectorSet = {
-	row: '[data-qa="bk-file__header"]',
-	filename: 'span:has(+ div [aria-label="Copy File Path"])',
-	icon: 'div:first-of-type svg',
-	isDirectory: (_rowEl, _fileNameEl, _iconEl) => false,
-	isSubmodule: (_rowEl, _fileNameEl, _iconEl) => false,
-	isCollapsable: (_rowEl, _fileNameEl, _iconEl) => false,
+const repositorySideTreeImplementation: ReplacementSelectorSet = {
+	row: 'table[aria-label="File explorer tree"] tr td:nth-of-type(2)',
+	filename: 'a',
+	icon: 'span[class*="fabric-icon"]',
+	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
+		iconEl.classList.contains('repos-folder-ison'),
+	isSubmodule: (_rowEl, _fileNameEl, iconEl) =>
+		iconEl.classList.contains('repos-submodule'),
+	isCollapsable: (_rowEl, _fileNameEl, _iconEl) =>
+		repositorySideTreeImplementation.isDirectory(_rowEl, _fileNameEl, _iconEl),
 };
 
 const directoryContentsHeaderImplementation: ReplacementSelectorSet = {
@@ -31,10 +34,11 @@ const directoryContentsHeaderImplementation: ReplacementSelectorSet = {
 };
 
 export const azuredevops: Site = {
-	domains: ['dev.azure.com', 'visualstudio.com'],
+	domains: ['dev.azure.com'],
 	replacements: [
 		mainRepositoryImplementation,
-		fileContentsHeaderImplementation,
-		directoryContentsHeaderImplementation,
+		//fileContentsHeaderImplementation,
+		//directoryContentsHeaderImplementation,
+		repositorySideTreeImplementation,
 	],
 };
