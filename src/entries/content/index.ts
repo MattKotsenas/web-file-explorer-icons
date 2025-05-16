@@ -35,25 +35,20 @@ function runReplacements(
 ) {
 	// Monitor DOM elements that match a CSS selector.
 	for (const replacement of replacements) {
-		// observe(replacement.row, {
-		// 	async add(rowEl: HTMLElement) {
-		// 		await replaceIconInRow(rowEl, replacement);
-		// 	},
-		// });
-
 		observe(replacement.row, {
-			async add(el: HTMLElement) {
-				await replaceIconInRow(el, replacement);
-
-				const subtreeObserver = observeElementSubtree(el, async (element: HTMLElement, mutation: MutationRecord) => {
-					console.log('Subtree changed in:', element, mutation);
+			initialize(el: HTMLElement) {
+				const subtreeObserver = observeElementSubtree(el, async (element: HTMLElement) => {
 					await replaceIconInRow(element, replacement);
 				});
 
-				// Optional: return cleanup
-				return () => {
-					subtreeObserver.disconnect();
-				};
+				return {
+					async add() {
+						await replaceIconInRow(el, replacement);
+					},
+					remove() {
+						subtreeObserver.disconnect();
+					}
+				}
 			}
 		});
 	}
@@ -66,8 +61,16 @@ function runReplacements(
 function observeElementSubtree(el: HTMLElement, callback:Function) {
 	const subtreeObserver = new MutationObserver(async (mutationsList) => {
 		for (const mutation of mutationsList) {
-			await callback(el, mutation);
-			break; // You can batch or debounce if needed
+			if (
+				mutation.type === 'childList' &&
+				mutation.addedNodes.length === 0 &&
+				mutation.removedNodes.length > 0
+			) {
+				// Skip pure node removals
+				continue;
+			}
+			await callback(el);
+			break;
 		}
 	});
 
