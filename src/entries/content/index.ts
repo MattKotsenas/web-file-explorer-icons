@@ -35,14 +35,48 @@ function runReplacements(
 ) {
 	// Monitor DOM elements that match a CSS selector.
 	for (const replacement of replacements) {
+		// observe(replacement.row, {
+		// 	async add(rowEl: HTMLElement) {
+		// 		await replaceIconInRow(rowEl, replacement);
+		// 	},
+		// });
+
 		observe(replacement.row, {
-			async add(rowEl: HTMLElement) {
-				await replaceIconInRow(rowEl, replacement);
-			},
+			async add(el: HTMLElement) {
+				await replaceIconInRow(el, replacement);
+
+				const subtreeObserver = observeElementSubtree(el, async (element: HTMLElement, mutation: MutationRecord) => {
+					console.log('Subtree changed in:', element, mutation);
+					await replaceIconInRow(element, replacement);
+				});
+
+				// Optional: return cleanup
+				return () => {
+					subtreeObserver.disconnect();
+				};
+			}
 		});
 	}
 
 	const rawStyles = replacements.map(({ styles }) => styles || '').join('\n');
 	flavor.watch(() => injectStyles(stylesEl, rawStyles));
 	injectStyles(stylesEl, rawStyles);
+}
+
+function observeElementSubtree(el: HTMLElement, callback:Function) {
+	const subtreeObserver = new MutationObserver(async (mutationsList) => {
+		for (const mutation of mutationsList) {
+			await callback(el, mutation);
+			break; // You can batch or debounce if needed
+		}
+	});
+
+	subtreeObserver.observe(el, {
+		attributes: true,
+		childList: true,
+		subtree: true,
+		characterData: true,
+	});
+
+	return subtreeObserver;
 }
