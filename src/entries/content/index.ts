@@ -35,12 +35,6 @@ function runReplacements(
 ) {
 	// Monitor DOM elements that match a CSS selector.
 	for (const replacement of replacements) {
-		// observe(replacement.row, {
-		// 	async add(rowEl: HTMLElement) {
-		// 		await replaceIconInRow(rowEl, replacement);
-		// 	},
-		// });
-
 		observe(replacement.row, {
 			async add(el: HTMLElement) {
 				await replaceIconInRow(el, replacement);
