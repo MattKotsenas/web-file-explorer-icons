@@ -63,11 +63,20 @@ function runReplacements(
 	injectStyles(stylesEl, rawStyles);
 }
 
-function observeElementSubtree(el: HTMLElement, callback:Function) {
+function observeElementSubtree(el: HTMLElement, callback: Function) {
 	const subtreeObserver = new MutationObserver(async (mutationsList) => {
+
 		for (const mutation of mutationsList) {
+			if (
+				mutation.type === 'childList' &&
+				mutation.addedNodes.length === 0 &&
+				mutation.removedNodes.length > 0
+			) {
+				// Skip pure node removals
+				continue;
+			}
 			await callback(el, mutation);
-			break; // You can batch or debounce if needed
+			break;
 		}
 	});
 
