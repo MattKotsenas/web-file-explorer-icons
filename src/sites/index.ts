@@ -1,10 +1,10 @@
 import { azuredevops } from './azuredevops';
-// import { bitbucket } from './bitbucket';
-// import { forgejo } from './forgejo';
-// import { gitea } from './gitea';
-// import { github } from './github';
-// import { gitlab } from './gitlab';
-// import { tangled } from './tangled';
+import { bitbucket } from './bitbucket';
+import { forgejo } from './forgejo';
+import { gitea } from './gitea';
+import { github } from './github';
+import { gitlab } from './gitlab';
+import { tangled } from './tangled';
 
 export type FnWithContext<T> = (
 	rowEl: HTMLElement,
@@ -13,7 +13,6 @@ export type FnWithContext<T> = (
 ) => T;
 
 export type ReplacementSelectorSet = {
-	root: string;
 	row: string;
 	filename: string | symbol;
 	icon: string;
@@ -40,12 +39,12 @@ export type Site = {
 // };
 
 export const sites: Array<Site> = [
-	// github,
-	// gitlab,
-	// gitea,
-	// forgejo,
-	// bitbucket,
-	// tangled,
+	github,
+	gitlab,
+	gitea,
+	forgejo,
+	bitbucket,
+	tangled,
 	azuredevops,
 ];
 export const matches: Array<string> = sites
