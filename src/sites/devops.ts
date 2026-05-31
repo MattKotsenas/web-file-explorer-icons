@@ -127,6 +127,15 @@ ${changesExplorerTreeImplementation.row} {
 		display: inline-block !important;
 	}
 }
+
+/* Anti-flicker: until our async replacement chain inserts the svg, hide the
+   native file/folder icon (identified by .icon-margin, which other row icons
+   like chevron and "More..." don't carry). Once our svg is in place, this
+   rule stops matching and replaceIconInRow's inline display:none keeps the
+   native span hidden. */
+${changesExplorerTreeImplementation.row} .fluent-icons-enabled:not(:has(> svg[${ATTRIBUTE_PREFIX}])) > span.icon-margin {
+	visibility: hidden;
+}
 `.trim();
 
 export const devops: Site = {
