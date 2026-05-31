@@ -53,6 +53,15 @@ ${repositorySideTreeImplementation.row} {
 		display: inline-block !important;
 	}
 }
+
+/* Anti-flicker: until our async replacement chain inserts the svg, hide the
+   native file/folder icon (matched by .icon-margin, which the chevron and
+   other row icons don't carry). Once replaceIconInRow runs, the :not(:has(...))
+   guard stops matching and the inline display:none on the native span takes
+   over. */
+${repositorySideTreeImplementation.row} .fluent-icons-enabled:not(:has(> svg[${ATTRIBUTE_PREFIX}])) > span.icon-margin {
+	visibility: hidden;
+}
 `.trim();
 
 const repositoryMainImplementation: ReplacementSelectorSet = {
@@ -66,6 +75,12 @@ const repositoryMainImplementation: ReplacementSelectorSet = {
 	isCollapsable: (_rowEl, _fileNameEl, _iconEl) =>
 		false,
 };
+repositoryMainImplementation.styles = /* css */ `
+/* Anti-flicker: see comment on the side-tree implementation above. */
+${repositoryMainImplementation.row} .fluent-icons-enabled:not(:has(> svg[${ATTRIBUTE_PREFIX}])) > span.icon-margin {
+	visibility: hidden;
+}
+`.trim();
 
 // Covers both single-commit views (`/commit/<sha>`) and PR diff "Files" tabs
 // (`/pullrequest/<id>?_a=files`). Both render the changed-files tree inside a
