@@ -67,10 +67,73 @@ const repositoryMainImplementation: ReplacementSelectorSet = {
 		false,
 };
 
+// Covers both single-commit views (`/commit/<sha>`) and PR diff "Files" tabs
+// (`/pullrequest/<id>?_a=files`). Both render the changed-files tree inside a
+// `table.repos-changes-explorer-tree`, which is the class that distinguishes
+// this tree from the home-page side tree (`table.repos-file-explorer-tree`
+// only, no `repos-changes-explorer-tree`).
+const changesExplorerTreeImplementation: ReplacementSelectorSet = {
+	row: '.repos-changes-explorer-tree .bolt-tree-row .bolt-tree-cell .bolt-table-cell-content',
+	filename: '.text-ellipsis',
+	icon: '.fluent-icons-enabled > span:not(.bolt-tree-expand-button)',
+	async setupObserver(row, replace) {
+		await replace();
+
+		// Azure DevOps recycles `.bolt-table-cell-content` wrappers when the diff
+		// tree re-flows (e.g. on every collapse/expand). The wrapper stays in the
+		// DOM but its inner text and native icon are swapped out for a different
+		// file, leaving our stale <svg> behind. Watch this row's subtree for
+		// mutations and re-run replace() whenever our svg's filename no longer
+		// matches the row's current text.
+		const observer = new MutationObserver(() => {
+			const raw = row.querySelector('.text-ellipsis')?.textContent?.trim();
+			if (!raw) return;
+			const expected = raw.split('/').at(-1)!.trim();
+			const ourSvgs = row.querySelectorAll(`svg[${ATTRIBUTE_PREFIX}]`);
+			const allMatch = ourSvgs.length > 0 && Array.from(ourSvgs).every(
+				s => s.getAttribute(`${ATTRIBUTE_PREFIX}-filename`) === expected,
+			);
+			if (allMatch) return;
+			// Strip stale svgs so replaceIconInRow starts from the original DOM
+			// shape (native span hidden via inline style, no prior siblings).
+			for (const s of ourSvgs) s.remove();
+			replace();
+		});
+		observer.observe(row, {
+			subtree: true,
+			childList: true,
+			characterData: true,
+		});
+	},
+	isDirectory: (_rowEl, _fileNameEl, iconEl) =>
+		iconEl.classList.contains('repos-folder-icon'),
+	isSubmodule: (_rowEl, _fileNameEl, _iconEl) =>
+		false, // TODO
+	isCollapsable: (rowEl, fileNameEl, iconEl) =>
+		changesExplorerTreeImplementation.isDirectory(rowEl, fileNameEl, iconEl),
+};
+changesExplorerTreeImplementation.styles = /* css */ `
+${changesExplorerTreeImplementation.row} {
+	/* Hide native folder icons by default. */
+	svg {
+		display: none !important;
+	}
+
+	/* Show the appropriate extension icon depending on the row's expansion
+	   state. Leaf file rows have no aria-expanded; show the closed/file icon. */
+	.bolt-tree-row[aria-expanded='true'] & svg[${ATTRIBUTE_PREFIX}-iconname$='_open'],
+	.bolt-tree-row[aria-expanded='false'] & svg[${ATTRIBUTE_PREFIX}]:not([${ATTRIBUTE_PREFIX}-iconname$='_open']),
+	.bolt-tree-row:not([aria-expanded]) & svg[${ATTRIBUTE_PREFIX}]:not([${ATTRIBUTE_PREFIX}-iconname$='_open']) {
+		display: inline-block !important;
+	}
+}
+`.trim();
+
 export const devops: Site = {
 	domains: ['dev.azure.com'],
 	replacements: [
 		repositorySideTreeImplementation,
-		repositoryMainImplementation
+		repositoryMainImplementation,
+		changesExplorerTreeImplementation,
 	]
 };
